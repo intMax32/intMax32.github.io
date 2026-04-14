@@ -7,6 +7,9 @@ tags:
   - Zettelkasten
   - AI
   - MachineLearning
+categories:
+  - Computer Science
+  - Machine Learning
 excerpt: "컴퓨터에게 label 없이 데이터를 전달하고, 입력들의 그룹을 찾아내는 학습."
 ---
 
