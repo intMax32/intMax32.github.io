@@ -51,12 +51,27 @@ classes: wide
 }
 </style>
 
+{% assign computer_science_posts = site.categories["Computer Science"] | sort: "date" | reverse %}
 {% assign machine_learning_posts = site.categories["Machine Learning"] | sort: "date" | reverse %}
+{% assign top_level_cs_posts = '' | split: '' %}
+{% for post in computer_science_posts %}
+  {% unless post.categories contains "Machine Learning" %}
+    {% assign top_level_cs_posts = top_level_cs_posts | push: post %}
+  {% endunless %}
+{% endfor %}
 
 <div class="category-tree">
   <section class="category-tree__group" id="computer-science">
     <h2>Computer Science</h2>
-    <p>현재는 Machine Learning 하위 분류를 사용합니다.</p>
+    {% if top_level_cs_posts.size > 0 %}
+      <ul class="category-tree__list">
+        {% for post in top_level_cs_posts %}
+          <li><a href="{{ post.url | relative_url }}">{{ post.title }}</a></li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>아직 이 분류에 글이 없습니다.</p>
+    {% endif %}
 
     <div class="category-tree__child" id="machine-learning">
       <h3>Machine Learning</h3>
