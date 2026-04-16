@@ -17,7 +17,7 @@ minimal_mistakes_skin    : "air" # "air", "aqua", "contrast", "dark", "dirt", "n
 # Site Settings
 locale                   : "en-US"
 rtl                      : # true, false (default) # turns direction of the page into right to left for RTL languages
-title                    : "아무거나 이것저것 해봅니다. 잘 부탁드려요."
+title                    : "intMax32"
 title_separator          : "-"
 subtitle                 : # site tagline that appears below site title in masthead
 name                     : "Light Theme Maniac"

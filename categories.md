@@ -52,12 +52,14 @@ classes: wide
 </style>
 
 {% assign computer_science_posts = site.categories["Computer Science"] | sort: "date" | reverse %}
-{% assign machine_learning_posts = site.categories["Machine Learning"] | sort: "date" | reverse %}
 {% assign top_level_cs_posts = '' | split: '' %}
+{% assign nested_ml_posts = '' | split: '' %}
 {% for post in computer_science_posts %}
-  {% unless post.categories contains "Machine Learning" %}
+  {% if post.categories.size == 1 %}
     {% assign top_level_cs_posts = top_level_cs_posts | push: post %}
-  {% endunless %}
+  {% elsif post.categories[1] == "Machine Learning" %}
+    {% assign nested_ml_posts = nested_ml_posts | push: post %}
+  {% endif %}
 {% endfor %}
 
 <div class="category-tree">
@@ -75,9 +77,9 @@ classes: wide
 
     <div class="category-tree__child" id="machine-learning">
       <h3>Machine Learning</h3>
-      {% if machine_learning_posts.size > 0 %}
+      {% if nested_ml_posts.size > 0 %}
         <ul class="category-tree__list">
-          {% for post in machine_learning_posts %}
+          {% for post in nested_ml_posts %}
             <li><a href="{{ post.url | relative_url }}">{{ post.title }}</a></li>
           {% endfor %}
         </ul>
