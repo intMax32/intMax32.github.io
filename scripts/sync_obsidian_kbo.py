@@ -170,6 +170,22 @@ def derive_date(note_path: Path) -> str:
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S +0900")
 
 
+def build_target_filename(note_path: Path) -> str:
+    matched = re.match(r"^(\d{4}-\d{2}-\d{2})(.*?)(\.[^.]+)$", note_path.name)
+    if not matched:
+        return note_path.name
+
+    date_prefix, raw_slug, extension = matched.groups()
+    slug = raw_slug.lstrip("-_ ")
+    slug = re.sub(r"[\s_]+", "-", slug)
+    slug = re.sub(r"-{2,}", "-", slug).strip("-")
+
+    if not slug:
+        return note_path.name
+
+    return f"{date_prefix}-{slug}{extension}"
+
+
 def sync_note(source_dir: Path, target_dir: Path, note_path: Path, root_category: str, dry_run: bool) -> str:
     raw_text = note_path.read_text(encoding="utf-8")
     note = parse_note(raw_text)
@@ -177,7 +193,8 @@ def sync_note(source_dir: Path, target_dir: Path, note_path: Path, root_category
     front_matter = serialize_front_matter(note, categories, source_dir, note_path)
     body = note.body.lstrip("\n")
     output = front_matter + body
-    target_path = target_dir / note_path.name
+    target_path = target_dir / build_target_filename(note_path)
+    legacy_target_path = target_dir / note_path.name
 
     current = target_path.read_text(encoding="utf-8") if target_path.exists() else None
     if current == output:
@@ -186,6 +203,8 @@ def sync_note(source_dir: Path, target_dir: Path, note_path: Path, root_category
     action = "update" if target_path.exists() else "create"
     if not dry_run:
         target_path.write_text(output, encoding="utf-8")
+        if legacy_target_path != target_path and legacy_target_path.exists():
+            legacy_target_path.unlink()
     return f"{action:<9} {target_path.relative_to(target_dir.parent)}"
 
 
