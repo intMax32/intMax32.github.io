@@ -86,7 +86,7 @@ classes: wide
             <li><a href="{{ post.url | relative_url }}">{{ post.title }}</a></li>
           {% endfor %}
         </ul>
-      {% else %}
+      {% elsif child_categories.size == 0 %}
         <p>아직 이 분류에 글이 없습니다.</p>
       {% endif %}
 
