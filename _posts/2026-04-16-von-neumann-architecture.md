@@ -7,6 +7,7 @@ tags:
   - ComputerScience
 categories:
   - Computer Science
+  - Computer Architecture
 excerpt: "프로그램을 구성하는 Instruction도 RAM 위에 올려놓는 구조."
 ---
 
