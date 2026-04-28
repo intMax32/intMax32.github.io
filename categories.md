@@ -51,41 +51,66 @@ classes: wide
 }
 </style>
 
-{% assign computer_science_posts = site.categories["Computer Science"] | sort: "date" | reverse %}
-{% assign top_level_cs_posts = '' | split: '' %}
-{% assign nested_ml_posts = '' | split: '' %}
-{% for post in computer_science_posts %}
-  {% if post.categories.size == 1 %}
-    {% assign top_level_cs_posts = top_level_cs_posts | push: post %}
-  {% elsif post.categories[1] == "Machine Learning" %}
-    {% assign nested_ml_posts = nested_ml_posts | push: post %}
+{% assign sorted_posts = site.posts | sort: "date" | reverse %}
+{% assign top_categories = '' | split: '' %}
+{% for post in sorted_posts %}
+  {% assign top_category = post.categories | first %}
+  {% if top_category and top_category != "" %}
+    {% unless top_categories contains top_category %}
+      {% assign top_categories = top_categories | push: top_category %}
+    {% endunless %}
   {% endif %}
 {% endfor %}
 
 <div class="category-tree">
-  <section class="category-tree__group" id="computer-science">
-    <h2>Computer Science</h2>
-    {% if top_level_cs_posts.size > 0 %}
-      <ul class="category-tree__list">
-        {% for post in top_level_cs_posts %}
-          <li><a href="{{ post.url | relative_url }}">{{ post.title }}</a></li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p>아직 이 분류에 글이 없습니다.</p>
-    {% endif %}
+  {% for top_category in top_categories %}
+    {% assign top_level_posts = '' | split: '' %}
+    {% assign child_categories = '' | split: '' %}
+    {% for post in sorted_posts %}
+      {% if post.categories[0] == top_category %}
+        {% if post.categories.size == 1 %}
+          {% assign top_level_posts = top_level_posts | push: post %}
+        {% elsif post.categories[1] %}
+          {% unless child_categories contains post.categories[1] %}
+            {% assign child_categories = child_categories | push: post.categories[1] %}
+          {% endunless %}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
 
-    <div class="category-tree__child" id="machine-learning">
-      <h3>Machine Learning</h3>
-      {% if nested_ml_posts.size > 0 %}
+    <section class="category-tree__group" id="{{ top_category | slugify }}">
+      <h2>{{ top_category }}</h2>
+      {% if top_level_posts.size > 0 %}
         <ul class="category-tree__list">
-          {% for post in nested_ml_posts %}
+          {% for post in top_level_posts %}
             <li><a href="{{ post.url | relative_url }}">{{ post.title }}</a></li>
           {% endfor %}
         </ul>
       {% else %}
         <p>아직 이 분류에 글이 없습니다.</p>
       {% endif %}
-    </div>
-  </section>
+
+      {% for child_category in child_categories %}
+        {% assign child_posts = '' | split: '' %}
+        {% for post in sorted_posts %}
+          {% if post.categories[0] == top_category and post.categories[1] == child_category %}
+            {% assign child_posts = child_posts | push: post %}
+          {% endif %}
+        {% endfor %}
+
+        <div class="category-tree__child" id="{{ top_category | slugify }}-{{ child_category | slugify }}">
+          <h3>{{ child_category }}</h3>
+          {% if child_posts.size > 0 %}
+            <ul class="category-tree__list">
+              {% for post in child_posts %}
+                <li><a href="{{ post.url | relative_url }}">{{ post.title }}</a></li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p>아직 이 분류에 글이 없습니다.</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </section>
+  {% endfor %}
 </div>
