@@ -52,7 +52,7 @@ classes: wide
 </style>
 
 {% assign sorted_posts = site.posts | sort: "date" | reverse %}
-{% assign preferred_kbo_children = "월간 기록|주간 기록|일간 기록|연간 기록" | split: "|" %}
+{% assign preferred_kbo_children = "일간 기록|주간 기록|월간 기록|연간 기록" | split: "|" %}
 {% assign top_categories = '' | split: '' %}
 {% for post in sorted_posts %}
   {% assign top_category = post.categories | first %}
@@ -67,7 +67,6 @@ classes: wide
   {% for top_category in top_categories %}
     {% assign top_level_posts = '' | split: '' %}
     {% assign child_categories = '' | split: '' %}
-    {% assign ordered_child_categories = '' | split: '' %}
     {% for post in sorted_posts %}
       {% if post.categories[0] == top_category %}
         {% if post.categories.size == 1 %}
@@ -79,21 +78,6 @@ classes: wide
         {% endif %}
       {% endif %}
     {% endfor %}
-
-    {% if top_category == "KBO Data" %}
-      {% for preferred_child in preferred_kbo_children %}
-        {% if child_categories contains preferred_child %}
-          {% assign ordered_child_categories = ordered_child_categories | push: preferred_child %}
-        {% endif %}
-      {% endfor %}
-      {% for child_category in child_categories %}
-        {% unless ordered_child_categories contains child_category %}
-          {% assign ordered_child_categories = ordered_child_categories | push: child_category %}
-        {% endunless %}
-      {% endfor %}
-    {% else %}
-      {% assign ordered_child_categories = child_categories %}
-    {% endif %}
 
     <section class="category-tree__group" id="{{ top_category | slugify }}">
       <h2>{{ top_category }}</h2>
@@ -107,7 +91,52 @@ classes: wide
         <p>아직 이 분류에 글이 없습니다.</p>
       {% endif %}
 
-      {% for child_category in ordered_child_categories %}
+      {% if top_category == "KBO Data" %}
+        {% for child_category in preferred_kbo_children %}
+          {% if child_categories contains child_category %}
+            {% assign child_posts = '' | split: '' %}
+            {% for post in sorted_posts %}
+              {% if post.categories[0] == top_category and post.categories[1] == child_category %}
+                {% assign child_posts = child_posts | push: post %}
+              {% endif %}
+            {% endfor %}
+
+            <div class="category-tree__child" id="{{ top_category | slugify }}-{{ child_category | slugify }}">
+              <h3>{{ child_category }}</h3>
+              {% if child_posts.size > 0 %}
+                <ul class="category-tree__list">
+                  {% for post in child_posts %}
+                    <li><a href="{{ post.url | relative_url }}">{{ post.title }}</a></li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
+
+        {% for child_category in child_categories %}
+          {% unless preferred_kbo_children contains child_category %}
+            {% assign child_posts = '' | split: '' %}
+            {% for post in sorted_posts %}
+              {% if post.categories[0] == top_category and post.categories[1] == child_category %}
+                {% assign child_posts = child_posts | push: post %}
+              {% endif %}
+            {% endfor %}
+
+            <div class="category-tree__child" id="{{ top_category | slugify }}-{{ child_category | slugify }}">
+              <h3>{{ child_category }}</h3>
+              {% if child_posts.size > 0 %}
+                <ul class="category-tree__list">
+                  {% for post in child_posts %}
+                    <li><a href="{{ post.url | relative_url }}">{{ post.title }}</a></li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          {% endunless %}
+        {% endfor %}
+      {% else %}
+      {% for child_category in child_categories %}
         {% assign child_posts = '' | split: '' %}
         {% for post in sorted_posts %}
           {% if post.categories[0] == top_category and post.categories[1] == child_category %}
@@ -128,6 +157,7 @@ classes: wide
           {% endif %}
         </div>
       {% endfor %}
+      {% endif %}
     </section>
   {% endfor %}
 </div>
